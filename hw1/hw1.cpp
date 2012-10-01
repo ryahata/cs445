@@ -103,6 +103,16 @@ int main()
 
 	fout << width  << " " << height << endl;
 
+	// For debug print back the array to console
+	for( int row = 0; row < height; row++ )
+	{
+		for( int col = 0; col < width; col++ )
+		{
+			fout << array[row][col] << ' ';
+		}
+		fout << endl;
+	}
+
 	fin.close();
 	fout.close();
 
