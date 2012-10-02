@@ -21,12 +21,15 @@ int get_color(int, int);
 void greedy_color(int, int, int);
 void color(int, int, int);
 
+void hacks_v2();
+
 /************************************
  * Global vars
  ************************************/
 vector< vector<int> > array;
 int width, height;
-int current_color = 2;
+int current_color = 1;
+vector<int> color_map;
 
 int main()
 {
@@ -69,7 +72,7 @@ int main()
 		dprint("", true);
 	}
 
-    hacks();
+    hacks_v2();
     
     /*
 	array[0][0] *= 2;
@@ -79,6 +82,7 @@ int main()
      */
 
 	// Normalize
+    /*
 	for( int row = 0; row < height; row++ )
 	{
 		for( int col = 0; col < width; col++ )
@@ -88,7 +92,7 @@ int main()
 			else
 				array[row][col] = 0;
 		}
-	}
+	}*/
 
 	// For debug print back the array to console
 	for( int row = 0; row < height; row++ )
@@ -119,12 +123,96 @@ int main()
 	return 0;
 }
 
+void hacks_v2()
+{
+	for( int y = 0; y < height; y++ )
+	{
+		for( int x = 0; x < width; x++ )
+		{
+			if( array[y][x] == 1 )
+			{
+				vector<int> labels;
+						
+                // North
+                if ( y > 0 && array[y - 1][x] != 0 )
+                    labels.push_back(array[y - 1][x]);
+                // West
+                if ( x > 0 && array[y][x - 1] != 0 )
+                    labels.push_back(array[y][x - 1]);
+                // North West
+                if ( y > 0 && x > 0 && array[y - 1][x - 1] != 0 )
+                    labels.push_back(array[y - 1][x - 1]);
+                // North east
+                if ( y > 0 && x < width - 1 && array[y - 1][x + 1] != 0 )
+                    labels.push_back(array[y - 1][x + 1]);
+                // East
+                //if ( x < width - 1 && array[y][x + 1] != 0 )
+                //    labels.push_back(array[y][x + 1]);
+                // South east
+                //if ( y < height - 1 && x < width - 1 && array[y + 1][x + 1] != 0)
+                //    labels.push_back(array[y + 1][x + 1]);
+                // South
+                //if ( y < height - 1 && array[y + 1][x] != 0 )
+                //    labels.push_back(array[y + 1][x]);
+                // South west
+                //if ( y < height - 1 && x > 0 && array[y + 1][x - 1] != 0 )
+                //    labels.push_back(array[y + 1][x - 1]);
+                
+                if (labels.size() != 0)
+                {
+                    int smallest = labels[0];
+                    for( int i = 1; i < labels.size(); i++ )
+                    {
+                        if( smallest > labels[i] )
+                            smallest = labels[i];
+                    }
+                    array[y][x] = smallest;
+                    
+                    for( int i = 0; i < labels.size(); i++ )
+                    {
+                        if( color_map.size() > labels[i] )
+                            color_map[labels[i] - 1] = smallest; // EDIT added -1
+                        else
+                        {
+                            //vector<int>::iterator itr = color_map.begin();
+                            color_map.insert(color_map.begin() + labels[i] - 1, smallest);
+                        }
+                    }
+                }
+                else
+                {
+                    array[y][x] = current_color++;
+                    //vector<int>::iterator itr = color_map.begin();
+                    color_map.insert(color_map.begin() + array[y][x] - 1, array[y][x]);
+                }
+            }
+		}
+	}
+
+	for( int row = 0; row < height; row++ )
+	{
+		for( int col = 0; col < width; col++ )
+		{
+            if (array[row][col] >= 1)
+            {
+                //array[row][col] = color_map[array[row][col] - 1]; // EDIT added -1
+                int temp_color = color_map[array[row][col] - 1];
+                while (temp_color > color_map[temp_color -1])
+                {
+                    temp_color = color_map[temp_color - 1];
+                }
+                array[row][col] = temp_color;
+            }
+		}
+	}
+}
+
 void hacks()
 {
     for( int row = 0; row < height; row++ )
 	{
-		for( int col = 0; col < width; col++ )
-		{
+	for( int col = 0; col < width; col++ )
+	{
             if ( array[row][col] == 1)
             {
                 //array[row][col] = get_color(col, row);
